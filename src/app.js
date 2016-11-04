@@ -56,9 +56,10 @@ class Viz {
     .attr("class", "x axis")
     .attr("transform", "translate(0," + this.height + ")")
     .call(
-      d3.svg.axis()
-      .scale(x)
-      .orient("bottom")
+      d3.axisBottom(x)
+      // d3.svg.axis()
+      // .scale(x)
+      // .orient("bottom")
     );
 
 

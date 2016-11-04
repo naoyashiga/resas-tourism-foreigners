@@ -1,8 +1,17 @@
-const d3 = require('d3');
+import Screen from './components/Screen'
+const d3 = require('d3')
 
 class Viz {
 
   constructor() {
+    this.margin = {top: 0, right: 0, bottom: 0, left: 0}
+
+    this.width = 960 - this.margin.left - this.margin.right
+    this.height = 800 - this.margin.top - this.margin.bottom
+    // this.width = window.innerWidth - this.margin.left - this.margin.right
+    // this.height = window.innerHeight - this.margin.top - this.margin.bottom
+
+    this.svg = this.createViz()
 
     this.matrix = []
     // this.matrix = [
@@ -12,6 +21,46 @@ class Viz {
     //   [ 1013,   990,  940, 6907]
     // ];
 
+    var index = d3.range(24),
+    data = index.map(d3.randomNormal(100, 10));
+
+    var x = d3.scaleLinear()
+    .domain([0, d3.max(data)])
+    .range([0, this.width]);
+
+    var y = d3.scaleBand()
+    .domain(index)
+    .range([0, this.height], .1);
+    // var y = d3.scaleOrdinal()
+    // .domain(index)
+    // .range([0, this.height], .1);
+
+    var bar = this.svg.selectAll(".bar")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; });
+
+    bar.append("rect")
+    .attr("height", y.bandwidth())
+    .attr("width", x);
+
+    bar.append("text")
+    .attr("text-anchor", "end")
+    .attr("x", function(d) { return x(d) - 6; })
+    .attr("y", y.bandwidth() / 2)
+    .attr("dy", ".35em")
+    .text(function(d, i) { return i; });
+
+    this.svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + this.height + ")")
+    .call(
+      d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+    );
+
 
 
     d3.json('./assets/data.json', (error, json) => {
@@ -20,7 +69,7 @@ class Viz {
 
       let row = []
 
-      for(let i = 1; i <= 10; i++) {
+      for(let i = 1; i <= 47; i++) {
         let prefectureData = json[String(i)].result.changes;
         // console.log(prefectureData);
         row = []
@@ -43,89 +92,14 @@ class Viz {
 
 
 
-      this.render();
     })
   }
 
-  render() {
-
-    var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height"),
-    outerRadius = Math.min(width, height) * 0.5 - 40,
-    innerRadius = outerRadius - 30;
-
-    var formatValue = d3.formatPrefix(",.0", 1e3);
-
-    var chord = d3.chord()
-    .padAngle(0.01)
-    .sortSubgroups(d3.descending);
-
-    var arc = d3.arc()
-    .innerRadius(innerRadius)
-    .outerRadius(outerRadius);
-
-    var ribbon = d3.ribbon()
-    .radius(innerRadius);
-
-    var color = d3.scaleOrdinal()
-    .domain(d3.range(10))
-    .range(["#000000", "#F26223"]);
-    // .range(["#000000", "#FFDD89", "#957244", "#F26223"]);
-
-    var g = svg.append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-    .datum(chord(this.matrix));
-
-    var group = g.append("g")
-    .attr("class", "groups")
-    .selectAll("g")
-    .data(function(chords) {
-      console.log("chords.groups" + chords.groups);
-      return chords.groups; })
-    .enter().append("g");
-
-    group.append("path")
-    .style("fill", function(d) {
-      console.log(d.index);
-      return color(d.index); })
-    .style("stroke", function(d) { return d3.rgb(color(d.index)).darker(); })
-    .attr("d", arc);
-
-    // var groupTick = group.selectAll(".group-tick")
-    // .data((d) => { return this.groupTicks(d, 1e3); })
-    // .enter().append("g")
-    // .attr("class", "group-tick")
-    // .attr("transform", function(d) { return "rotate(" + (d.angle * 180 / Math.PI - 90) + ") translate(" + outerRadius + ",0)"; });
-    //
-    // groupTick.append("line")
-    // .attr("x2", 6);
-    //
-    // groupTick
-    // .filter(function(d) { return d.value % 5e3 === 0; })
-    // .append("text")
-    // .attr("x", 8)
-    // .attr("dy", ".35em")
-    // .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180) translate(-16)" : null; })
-    // .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
-    // .text(function(d) { return formatValue(d.value); });
-
-    g.append("g")
-    .attr("class", "ribbons")
-    .selectAll("path")
-    .data(function(chords) { return chords; })
-    .enter().append("path")
-    .attr("d", ribbon)
-    .style("fill", function(d) { return color(d.target.index); })
-    .style("stroke", function(d) { return d3.rgb(color(d.target.index)).darker(); });
+  createViz() {
+    return new Screen(this.width, this.height, this.margin).element;
   }
-  // Returns an array of tick angles and values for a given group and step.
-  groupTicks(d, step) {
-    var k = (d.endAngle - d.startAngle) / d.value;
-    return d3.range(0, d.value, step).map(function(value) {
-      return {value: value, angle: value * k + d.startAngle};
-    });
-  }
+
+
 }
 
 new Viz()

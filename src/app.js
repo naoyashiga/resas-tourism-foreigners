@@ -21,8 +21,41 @@ class Viz {
     //   [ 1013,   990,  940, 6907]
     // ];
 
-    var index = d3.range(24),
-    data = index.map(d3.randomNormal(100, 10));
+    // var index = d3.range(24),
+    // data = index.map(d3.randomNormal(100, 10));
+
+
+
+    d3.json('./assets/data.json', (error, json) => {
+      // console.log(error);
+      // console.log(json["1"]);
+
+      let row = []
+
+      for(let i = 1; i <= 47; i++) {
+        let prefectureData = json[String(i)].result.changes;
+        // console.log(prefectureData);
+        row = []
+
+        prefectureData.forEach((country, i) => {
+          // console.log(country.data);
+
+          row.push(country.data[0].value);
+        })
+
+        this.matrix.push(row);
+      }
+
+
+      this.render()
+    })
+
+  }
+
+  render() {
+
+    var data = this.matrix[0]
+    var index = d3.range(data.length)
 
     var x = d3.scaleLinear()
     .domain([0, d3.max(data)])
@@ -62,38 +95,6 @@ class Viz {
       // .orient("bottom")
     );
 
-
-
-    d3.json('./assets/data.json', (error, json) => {
-      // console.log(error);
-      // console.log(json["1"]);
-
-      let row = []
-
-      for(let i = 1; i <= 47; i++) {
-        let prefectureData = json[String(i)].result.changes;
-        // console.log(prefectureData);
-        row = []
-
-        prefectureData.forEach((country, i) => {
-          // console.log(country.data);
-
-          row.push(country.data[0].value);
-        })
-
-        this.matrix.push(row);
-      }
-
-
-      console.log(this.matrix);
-
-      // for country in prefectureData {
-      //   console.log(country);
-      // }
-
-
-
-    })
   }
 
   createViz() {

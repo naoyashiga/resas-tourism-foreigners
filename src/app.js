@@ -4,7 +4,7 @@ const d3 = require('d3')
 class Viz {
 
   constructor() {
-    this.margin = {top: 0, right: 0, bottom: 0, left: 0}
+    this.margin = {top: 30, right: 0, bottom: 300, left: 0}
 
     this.width = 960 - this.margin.left - this.margin.right
     this.height = 800 - this.margin.top - this.margin.bottom
@@ -72,7 +72,7 @@ class Viz {
     .data(data)
     .enter().append("g")
     .attr("class", "bar")
-    .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; });
+    .attr("transform", (d, i) => { return "translate(" + this.margin.left + "," + y(i) + ")"; });
 
     bar.append("rect")
     .attr("height", y.bandwidth())
@@ -87,13 +87,8 @@ class Viz {
 
     this.svg.append("g")
     .attr("class", "x axis")
-    .attr("transform", "translate(0," + this.height + ")")
-    .call(
-      d3.axisBottom(x)
-      // d3.svg.axis()
-      // .scale(x)
-      // .orient("bottom")
-    );
+    .attr("transform", "translate(" + this.margin.left + "," + (this.height) + ")")
+    .call(d3.axisBottom(x));
 
   }
 

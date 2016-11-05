@@ -1,6 +1,7 @@
 import Screen from './components/Screen'
 const d3 = require('d3')
 
+// http://bl.ocks.org/mbostock/1584697
 class Viz {
 
   constructor() {
@@ -28,7 +29,7 @@ class Viz {
 
     d3.json('./assets/data.json', (error, json) => {
       // console.log(error);
-      // console.log(json["1"]);
+      console.log(json["1"]);
 
       let row = []
 
@@ -37,14 +38,17 @@ class Viz {
         // console.log(prefectureData);
         row = []
 
-        prefectureData.forEach((country, i) => {
-          // console.log(country.data);
+        // prefectureData.forEach((country, i) => {
+        //   // console.log(country.data);
+        //
+        //   row.push(country.data[0].value);
+        // })
 
-          row.push(country.data[0].value);
-        })
-
-        this.matrix.push(row);
+        this.matrix.push(prefectureData);
+        // this.matrix.push(row);
       }
+
+      // console.log(this.matrix);
 
 
       this.render()
@@ -54,7 +58,11 @@ class Viz {
 
   render() {
 
-    var data = this.matrix[0]
+    var data = this.matrix[0].map((d,i) => {
+      return d.data[0].value;
+    })
+
+    console.log(data);
     var index = d3.range(data.length)
 
     var x = d3.scaleLinear()
@@ -69,21 +77,23 @@ class Viz {
     // .range([0, this.height], .1);
 
     var bar = this.svg.selectAll(".bar")
-    .data(data)
+    .data(this.matrix[0])
     .enter().append("g")
     .attr("class", "bar")
     .attr("transform", (d, i) => { return "translate(" + this.margin.left + "," + y(i) + ")"; });
 
     bar.append("rect")
     .attr("height", y.bandwidth())
-    .attr("width", x);
+    .attr("width", function(d) { return x(d.data[0].value); })
 
     bar.append("text")
     .attr("text-anchor", "end")
-    .attr("x", function(d) { return x(d) - 6; })
+    .attr("x", function(d) { return -10; })
     .attr("y", y.bandwidth() / 2)
     .attr("dy", ".35em")
-    .text(function(d, i) { return i; });
+    .text(function(d, i) {
+      return d.countryName;
+    });
 
     this.svg.append("g")
     .attr("class", "x axis")

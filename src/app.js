@@ -15,17 +15,6 @@ class Viz {
     this.svg = this.createViz()
 
     this.matrix = []
-    // this.matrix = [
-    //   [1197,  5871, 8916, 2868],
-    //   [ 1951, 10048, 2060, 6171],
-    //   [ 8010, 16145, 8090, 8045],
-    //   [ 1013,   990,  940, 6907]
-    // ];
-
-    // var index = d3.range(24),
-    // data = index.map(d3.randomNormal(100, 10));
-
-
 
     d3.json('./assets/data.json', (error, json) => {
       // console.log(error);
@@ -35,21 +24,9 @@ class Viz {
 
       for(let i = 1; i <= 47; i++) {
         let prefectureData = json[String(i)].result.changes;
-        // console.log(prefectureData);
-        row = []
-
-        // prefectureData.forEach((country, i) => {
-        //   // console.log(country.data);
-        //
-        //   row.push(country.data[0].value);
-        // })
 
         this.matrix.push(prefectureData);
-        // this.matrix.push(row);
       }
-
-      // console.log(this.matrix);
-
 
       this.render()
     })
@@ -72,9 +49,6 @@ class Viz {
     var y = d3.scaleBand()
     .domain(index)
     .range([0, this.height], .1);
-    // var y = d3.scaleOrdinal()
-    // .domain(index)
-    // .range([0, this.height], .1);
 
     var bar = this.svg.selectAll(".bar")
     .data(this.matrix[0])
